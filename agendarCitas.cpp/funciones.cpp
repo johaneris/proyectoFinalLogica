@@ -1,144 +1,185 @@
-
+// funciones.cpp
 
 #include <iostream>
-#include <string>
+#include <cstring>
 #include "variables.h"
 
 using namespace std;
 
 CITA citas[MAX_CITAS];
+int posCitas = 0;
 
-int numeroCitas = 0;
-
+// Prototipos de las funciones
 void agregarCita(CITA *c);
-void programarCita();
-void verCitas();
-void editarCitas();
-void eliminarCita();
+void editarCita(CITA *c, int id);
+void eliminarCita(int id);
+CITA buscarCita(int id);
+int obtPosCita(int id);
+void mostrarCitas();
+void pedirDatosCita();
+void buscarCitaPorID();
+void editarDatosCita();
+void eliminarCitaPorID();
 int menu();
 void principal();
 
-
-
-
-void agregarCita() {
-    if (numeroCitas < MAX_CITAS) {
-        CITA nuevaCita;
-
-        cout << "Ingrese el nombre del paciente: ";
-        cin >> nuevaCita.nombrePaciente;
-        
-        cout << "Ingrese el tratamiento: ";
-        cin >> nuevaCita.tratamiento;
-
-        cout << "Ingrese la fecha: ";
-        cin >> nuevaCita.fecha;
-
-        cout << "Ingrese la hora: ";
-        cin >> nuevaCita.hora;
-
-        citas[numeroCitas] = nuevaCita;
-        numeroCitas++;
-
-        cout << "Cita agregada con exitosamente." << endl;
-    } else {
-        cout << "No se pueden agregar citas." << endl;
-    }
+// Implementación de las funciones
+void agregarCita(CITA *c) {
+    citas[posCitas] = *c;
+    posCitas++;
 }
 
-void verCitas() {
-    if (numeroCitas == 0) {
-        cout << "No hay citas programadas." << endl;
-    } else {
-        for (int i = 0; i < numeroCitas; i++) {
-            cout << "Cita " << i + 1 << ":" << endl;
-            cout << "  Nombre del paciente: " << citas[i].nombrePaciente << endl;
-            cout << "  Tratamiento: " << citas[i].tratamiento << endl;
-            cout << "  Fecha: " << citas[i].fecha << endl;
-            cout << "  Hora: " << citas[i].hora << endl;
+CITA buscarCita(int id) {
+    for (int i = 0; i < posCitas; i++) {
+        if (id == citas[i].id) {
+            return citas[i];
         }
     }
+    CITA c = {0, "", "", "", ""}; // Si no se encuentra, devuelve una cita vacía
+    return c;
 }
 
-void editarCita() {
-    int indice;
-    cout << "Ingrese el numero de la cita a editar: ";
-    cin >> indice;
-    indice--; 
-
-    if (indice < 0 || indice >= numeroCitas) {
-        cout << "Número de cita inválido." << endl;
-        return;
+int obtPosCita(int id) {
+    for (int i = 0; i < posCitas; i++) {
+        if (citas[i].id == id) {
+            return i;
+        }
     }
-
-    cout << "Editar nombre del paciente (actual: " << citas[indice].nombrePaciente << "): ";
-    cin >> citas[indice].nombrePaciente;
-
-    cout << "Editar tratamiento (actual: " << citas[indice].tratamiento << "): ";
-    cin >> citas[indice].tratamiento;
-
-    cout << "Editar fecha (actual: " << citas[indice].fecha << "): ";
-    cin >> citas[indice].fecha;
-
-    cout << "Editar hora (actual: " << citas[indice].hora << "): ";
-    cin >> citas[indice].hora;
-
-    cout << "Cita editada con éxito." << endl;
+    return -1;
 }
 
-void eliminarCita() {
-    int indice;
-    cout << "Ingrese el numero de la cita que desea eliminar: ";
-    cin >> indice;
-    indice--; 
-
-    if (indice < 0 || indice >= numeroCitas) {
-        cout << "Numero de cita inválido." << endl;
-        return;
+void editarCita(CITA *c, int id) {
+    int pos = obtPosCita(id);
+    if (pos != -1) {
+        citas[pos] = *c;
     }
-
-    for (int i = indice; i < numeroCitas - 1; ++i) {
-        citas[i] = citas[i + 1];
-    }
-    numeroCitas--;
-
-    cout << "Cita eliminada con éxito." << endl;
 }
 
-void mostrarMenu() {
-    cout << "Menu de Citas\n";
-    cout << "1. Agregar cita\n";
-    cout << "2. Ver citas\n";
-    cout << "3. Editar cita\n";
-    cout << "4. Eliminar cita\n";
-    cout << "5. Salir\n";
-    cout << "Seleccione: ";
+void eliminarCita(int id) {
+    int pos = obtPosCita(id);
+    if (pos != -1) {
+        for (int i = pos; i < posCitas - 1; i++) {
+            citas[i] = citas[i + 1];
+        }
+        posCitas--;
+    }
+}
+
+void mostrarCitas() {
+    for (int i = 0; i < posCitas; i++) {
+        cout << "ID: " << citas[i].id << endl;
+        cout << "Nombre del paciente: " << citas[i].nombrePaciente << endl;
+        cout << "Tratamiento: " << citas[i].tratamiento << endl;
+        cout << "Fecha: " << citas[i].fecha << endl;
+        cout << "Hora: " << citas[i].hora << endl;
+        cout << "==============================" << endl;
+    }
+}
+
+void pedirDatosCita() {
+    CITA cita;
+    cout << "Datos de la Cita\n";
+    cout << "ID: ";
+    cin >> cita.id;
+    cin.ignore();
+    cout << "Nombre del Paciente: ";
+    cin.getline(cita.nombrePaciente, 50);
+    cout << "Tratamiento: ";
+    cin.getline(cita.tratamiento, 50);
+    cout << "Fecha (dd/mm/aaaa): ";
+    cin.getline(cita.fecha, 20);
+    cout << "Hora (hh:mm): ";
+    cin.getline(cita.hora, 10);
+    agregarCita(&cita);
+    cout << "Cita Agregada....\n";
+}
+
+void buscarCitaPorID() {
+    int id;
+    cout << "ID de la cita a buscar: ";
+    cin >> id;
+    CITA cita = buscarCita(id);
+    if (cita.id != 0) {
+        cout << "ID: " << cita.id << endl;
+        cout << "Nombre del paciente: " << cita.nombrePaciente << endl;
+        cout << "Tratamiento: " << cita.tratamiento << endl;
+        cout << "Fecha: " << cita.fecha << endl;
+        cout << "Hora: " << cita.hora << endl;
+    } else {
+        cout << "Cita no encontrada.\n";
+    }
+}
+
+void editarDatosCita() {
+    int id;
+    cout << "ID de la cita a editar: ";
+    cin >> id;
+    cin.ignore();
+    CITA cita = buscarCita(id);
+    if (cita.id != 0) {
+        cout << "Nombre del Paciente: ";
+        cin.getline(cita.nombrePaciente, 50);
+        cout << "Tratamiento: ";
+        cin.getline(cita.tratamiento, 50);
+        cout << "Fecha (dd/mm/aaaa): ";
+        cin.getline(cita.fecha, 20);
+        cout << "Hora (hh:mm): ";
+        cin.getline(cita.hora, 10);
+        editarCita(&cita, id);
+        cout << "Cita actualizada...\n";
+    } else {
+        cout << "Cita no encontrada.\n";
+    }
+}
+
+void eliminarCitaPorID() {
+    int id;
+    cout << "ID de la cita a eliminar: ";
+    cin >> id;
+    eliminarCita(id);
+    cout << "Cita eliminada...\n";
+}
+
+int menu() {
+    int op;
+    cout << "Menu\n";
+    cout << "1. Agregar Cita\n";
+    cout << "2. Editar Cita\n";
+    cout << "3. Eliminar Cita\n";
+    cout << "4. Buscar Cita\n";
+    cout << "5. Mostrar Citas\n";
+    cout << "6. Salir\n";
+    cout << "Digite la opción: ";
+    cin >> op;
+    return op;
 }
 
 void principal() {
-    int opcion;
+    int op;
     do {
-        mostrarMenu();
-        cin >> opcion;
-        switch (opcion) {
+        op = menu();
+        switch (op) {
             case 1:
-                agregarCita();
+                pedirDatosCita();
                 break;
             case 2:
-                verCitas();
+                editarDatosCita();
                 break;
             case 3:
-                editarCita();
+                eliminarCitaPorID();
                 break;
             case 4:
-                eliminarCita();
+                buscarCitaPorID();
                 break;
             case 5:
-                cout << "Saliendo del programa." << endl;
+                mostrarCitas();
+                break;
+            case 6:
+                cout << "Saliendo...\n";
                 break;
             default:
-                cout << "Opcion incorrecta." << endl;
+                cout << "Opción no válida\n";
                 break;
         }
-    } while (opcion != 5);
+    } while (op != 6);
 }
